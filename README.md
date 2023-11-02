@@ -6,7 +6,7 @@ Knows about SEMI SPEC M1-0302 which defines wafer flat sizes.
 
 ## Installation
 
-(PyPI packages comming soon-ish)
+(PyPI packages coming soon-ish)
 
 1.  `git clone https://github.com/dougthor42/gdw`
 1.  `pip install -e gdw`
