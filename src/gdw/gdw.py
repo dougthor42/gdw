@@ -32,8 +32,9 @@ class Wafer(object):
     scribe_y : float, optional
     """
 
-    def __init__(self, die_xy, center_offset,
-                 dia=150, excl=4.5, flat_excl=4.5, scribe_y=70.2):
+    def __init__(
+        self, die_xy, center_offset, dia=150, excl=4.5, flat_excl=4.5, scribe_y=70.2
+    ):
         self._die_xy = die_xy
         self._center_offset = center_offset
         self._x_offset = center_offset[0]
@@ -72,7 +73,7 @@ class Wafer(object):
 
     @property
     def excl_rad_sqrd(self):
-        return (self.dia/2)**2 + (self.excl**2) - (self.dia * self.excl)
+        return (self.dia / 2) ** 2 + (self.excl**2) - (self.dia * self.excl)
 
     @property
     def die_xy(self):
@@ -141,11 +142,11 @@ class Wafer(object):
 
     @property
     def grid_center_x(self):
-        return self.grid_max_x/2 + self.x_offset
+        return self.grid_max_x / 2 + self.x_offset
 
     @property
     def grid_center_y(self):
-        return self.grid_max_y/2 + self.y_offset
+        return self.grid_max_y / 2 + self.y_offset
 
     @property
     def grid_center_xy(self):
@@ -171,7 +172,7 @@ class Die(object):
         ``'excl'``, ``'flatExcl'``, or ``'probe'``
     """
 
-    __slots__ = ['x_grid', 'y_grid', 'x_coord', 'y_coord', 'state']
+    __slots__ = ["x_grid", "y_grid", "x_coord", "y_coord", "state"]
 
     def __init__(self, x_grid, y_grid, x_coord, y_coord, state):
         self.x_grid = x_grid
@@ -211,13 +212,13 @@ def max_dist_sqrd(center, size):
         The distance from the origin (0, 0) to the farthest corner of the
         rectangle.
     """
-    half_x = size[0]/2.
-    half_y = size[1]/2.
+    half_x = size[0] / 2.0
+    half_y = size[1] / 2.0
     if center[0] < 0:
         half_x = -half_x
     if center[1] < 0:
         half_y = -half_y
-    dist = (center[0] + half_x)**2 + (center[1] + half_y)**2
+    dist = (center[0] + half_x) ** 2 + (center[1] + half_y) ** 2
     return dist
 
 
@@ -235,10 +236,10 @@ def flat_location(dia):
     flat_y : float
         The flat Y location with respect to the wafer center.
     """
-    flat_y = -dia/2     # assume wafer edge at first
+    flat_y = -dia / 2  # assume wafer edge at first
     if dia in FLAT_LENGTHS:
         # A flat is defined by SEMI M1-0302, so we calcualte where it is
-        flat_y = -math.sqrt((dia/2)**2 - (FLAT_LENGTHS[dia] * 0.5)**2)
+        flat_y = -math.sqrt((dia / 2) ** 2 - (FLAT_LENGTHS[dia] * 0.5) ** 2)
 
     return flat_y
 
@@ -279,8 +280,8 @@ def calc_die_state(wafer, x_grid, y_grid, north_limit=None):
     die_max_sqrd = max_dist_sqrd(coord_die_center, wafer.die_xy)
 
     # Determine the die's lower-left corner (since that's the orgin for wx).
-    coord_lower_left_x = coord_die_center_x - wafer.die_x/2
-    coord_lower_left_y = coord_die_center_y - wafer.die_y/2
+    coord_lower_left_x = coord_die_center_x - wafer.die_x / 2
+    coord_lower_left_y = coord_die_center_y - wafer.die_y / 2
 
     # Classify the die
     if die_max_sqrd > wafer.rad**2:
@@ -301,16 +302,18 @@ def calc_die_state(wafer, x_grid, y_grid, north_limit=None):
         # it's a good die, add it to the list
         status = "probe"
 
-    return (x_grid,
-            y_grid,
-            coord_lower_left_x,
-            coord_lower_left_y,
-            status,
-            )
+    return (
+        x_grid,
+        y_grid,
+        coord_lower_left_x,
+        coord_lower_left_y,
+        status,
+    )
 
 
-def gdw(die_size, dia, center_offset=('odd', 'odd'), excl=5, flat_excl=5,
-        north_limit=None):
+def gdw(
+    die_size, dia, center_offset=("odd", "odd"), excl=5, flat_excl=5, north_limit=None
+):
     """
     Calculate Gross Die per Wafer (GDW).
 
@@ -367,7 +370,7 @@ def gdw(die_size, dia, center_offset=('odd', 'odd'), excl=5, flat_excl=5,
         wafer.y_offset = 0.5
 
     # convert the fixed offset to a die %age
-    if not all(i in ('odd', 'even') for i in center_offset):
+    if not all(i in ("odd", "even") for i in center_offset):
         wafer.x_offset = center_offset[0] / wafer.die_x
         wafer.y_offset = center_offset[1] / wafer.die_y
 
@@ -375,7 +378,7 @@ def gdw(die_size, dia, center_offset=('odd', 'odd'), excl=5, flat_excl=5,
     for _x in range(1, wafer.grid_max_x):
         for _y in range(1, wafer.grid_max_y):
             die = calc_die_state(wafer, _x, _y, north_limit)
-            if die[4] == 'wafer':
+            if die[4] == "wafer":
                 continue
             grid_points.append(die)
 
@@ -426,11 +429,8 @@ def maxGDW(die_size, dia, excl, fssExcl, north_limit=None):
       **Confirm that this is (X, Y) and not (R, C)**
     """
     # list of available die shifts in XY pairs
-    ds = [("odd", "odd"),
-          ("odd", "even"),
-          ("even", "odd"),
-          ("even", "even")]
-    #ds = [("even", "odd")]
+    ds = [("odd", "odd"), ("odd", "even"), ("even", "odd"), ("even", "even")]
+    # ds = [("even", "odd")]
     j = (0, "")
     probeList = []
     for shift in ds:
@@ -465,17 +465,21 @@ def maxGDW(die_size, dia, excl, fssExcl, north_limit=None):
     ----------------------------------
     """
 
-    print(SUMMARY_STRING.format(max_gdw=j[0],
-                                max_gdw_type_x=j[1][0],
-                                max_gdw_type_y=j[1][1],
-                                lost_edge=j[2],
-                                lost_flat=j[3],
-                                lost_fss=j[4]))
+    print(
+        SUMMARY_STRING.format(
+            max_gdw=j[0],
+            max_gdw_type_x=j[1][0],
+            max_gdw_type_y=j[1][1],
+            lost_edge=j[2],
+            lost_flat=j[3],
+            lost_fss=j[4],
+        )
+    )
 
     return (probeList, gridCenter)
 
 
-#def plotGDW(dieList, die_size, dia, excl, fssExcl, grid_center):
+# def plotGDW(dieList, die_size, dia, excl, fssExcl, grid_center):
 #    """
 #    Plots up a wafer map of dieList, coloring based on the bin the die
 #    die belongs to.
@@ -522,8 +526,8 @@ def gen_mask_file(path, probe_list, mask_name, die_xy, dia, fixed_start_coord=Fa
         # Adjust the original data to the origin
         # this defines where (1, 1) actually is.
         # TODO: Verify that "- 2" works for all cases
-        edge_row = min({i[1] for i in probe_list if i[2] == 'excl'}) - 2
-        edge_col = min({i[0] for i in probe_list if i[2] == 'excl'}) - 2
+        edge_row = min({i[1] for i in probe_list if i[2] == "excl"}) - 2
+        edge_col = min({i[0] for i in probe_list if i[2] == "excl"}) - 2
         print("edge_row = {}  edge_col = {}".format(edge_row, edge_col))
 
         for _i, _ in enumerate(probe_list):
@@ -532,14 +536,13 @@ def gen_mask_file(path, probe_list, mask_name, die_xy, dia, fixed_start_coord=Fa
             probe_list[_i][1] -= edge_row
             probe_list[_i] = tuple(probe_list[_i])
 
-    n_rc = (max({i[1] for i in probe_list}) + 1,
-            max({i[0] for i in probe_list}) + 1)
+    n_rc = (max({i[1] for i in probe_list}) + 1, max({i[0] for i in probe_list}) + 1)
     print("n_rc = {}".format(n_rc))
 
     # create a list of every die
     all_die = []
-    for row in range(1, n_rc[0] + 1):        # Need +1 b/c end pt omitted
-        for col in range(1, n_rc[1] + 1):    # Need +1 b/c end pt omitted
+    for row in range(1, n_rc[0] + 1):  # Need +1 b/c end pt omitted
+        for col in range(1, n_rc[1] + 1):  # Need +1 b/c end pt omitted
             all_die.append((row, col))
 
     # Note: I need list() so that I make copies of the data. Without it,
@@ -564,8 +567,8 @@ def gen_mask_file(path, probe_list, mask_name, die_xy, dia, fixed_start_coord=Fa
             if _state in ("excl", "flatExcl"):
                 edge_list.remove(_rc)
         except ValueError:
-#            print(_rc, _state)
-#            raise
+            #  print(_rc, _state)
+            #  raise
             continue
 
     # Determine the starting RC - this will be the min row, min column that
@@ -576,18 +579,18 @@ def gen_mask_file(path, probe_list, mask_name, die_xy, dia, fixed_start_coord=Fa
     start_rc = (min_row, min_col)
     print("Landing Die: {}".format(start_rc))
 
-    test_all_string = ''.join(["%s,%s; " % (i[0], i[1]) for i in test_all_list])
-    edge_string = ''.join(["%s,%s; " % (i[0], i[1]) for i in edge_list])
-    every_string = ''.join(["%s,%s; " % (i[0], i[1]) for i in every_list])
+    test_all_string = "".join(["%s,%s; " % (i[0], i[1]) for i in test_all_list])
+    edge_string = "".join(["%s,%s; " % (i[0], i[1]) for i in edge_list])
+    every_string = "".join(["%s,%s; " % (i[0], i[1]) for i in every_list])
 
-    home_rc = (1, 1)                         # Static value
+    home_rc = (1, 1)  # Static value
 
-    with open(path, 'w') as openf:
+    with open(path, "w") as openf:
         openf.write("[Mask]\n")
-        openf.write("Mask = \"%s\"\n" % mask_name)
+        openf.write('Mask = "%s"\n' % mask_name)
         openf.write("Die X = %f\n" % die_xy[0])
         openf.write("Die Y = %f\n" % die_xy[1])
-        openf.write("Flat = 0\n")                   # always 0
+        openf.write("Flat = 0\n")  # always 0
         openf.write("\n")
         openf.write("[%dmm]\n" % dia)
         openf.write("Rows = %d\n" % n_rc[0])
@@ -596,11 +599,11 @@ def gen_mask_file(path, probe_list, mask_name, die_xy, dia, fixed_start_coord=Fa
         openf.write("Home Col = %d\n" % home_rc[1])
         openf.write("Start Row = %d\n" % start_rc[0])
         openf.write("Start Col = %d\n" % start_rc[1])
-        openf.write("Every = \"" + every_string[:-2] + "\"\n")
-        openf.write("TestAll = \"" + test_all_string[:-2] + "\"\n")
-        openf.write("Edge Inking = \"" + edge_string[:-2] + "\"\n")
+        openf.write('Every = "' + every_string[:-2] + '"\n')
+        openf.write('TestAll = "' + test_all_string[:-2] + '"\n')
+        openf.write('Edge Inking = "' + edge_string[:-2] + '"\n')
         openf.write("\n[Devices]\n")
-        openf.write("PCM = \"0.2,0,0,,T\"\n")
+        openf.write('PCM = "0.2,0,0,,T"\n')
 
 
 if __name__ == "__main__":
