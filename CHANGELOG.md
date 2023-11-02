@@ -11,6 +11,7 @@
 + Switched from `green` to `pytest` for unit testing.
 + Moved to a `src` dir structure like all my other projects.
 + Linted project.
++ Ran `black` on entire project.
 
 
 ## 0.1.3 / 2017-03-15
