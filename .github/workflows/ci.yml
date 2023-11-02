@@ -38,7 +38,7 @@ jobs:
       - name: Run tests
         continue-on-error: ${{ matrix.allowed-to-fail }}
         run: |
-          python -m green -vvv -s 1 -W -t --run-coverage
+          pytest
 
   lint:
     # TODO: DRY this with tests job

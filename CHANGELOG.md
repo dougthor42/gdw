@@ -8,6 +8,7 @@
 + Added pre-commit config.
 + Purged all IP, deleted git history, make project public.
 + Moved dependencies to pyproject.toml
++ Switched from `green` to `pytest` for unit testing.
 
 
 ## 0.1.3 / 2017-03-15
