@@ -44,6 +44,12 @@ docs = [
 "Changelog" = "https://github.com/dougthor42/gdw/blob/master/CHANGELOG.md"
 "Bug Tracker" = "https://github.com/dougthor42/gdw/issues"
 
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
 [tool.mypy]
 show_error_codes = true
 

@@ -11,7 +11,7 @@ Created on Tue Jun 17 14:01:24 2014
 """
 
 import unittest
-from .. import gdw
+import gdw.gdw as gdw
 
 
 class TestWaferClass(unittest.TestCase):
