@@ -18,6 +18,7 @@ Knows about SEMI SPEC M1-0302 which defines wafer flat sizes.
 1.  Clone the repo.
 1.  CD into the local repo directory.
 1.  Install with the `dev` options: `pip install -e .[dev]`
+1.  Install the pre-commit hooks: `pre-commit install`
 1.  Run tests to make sure things are 👍: `pytest`
 
 
