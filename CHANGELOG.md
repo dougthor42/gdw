@@ -7,6 +7,7 @@
 + Added pyproject.toml
 + Added pre-commit config.
 + Purged all IP, deleted git history, make project public.
++ Moved dependencies to pyproject.toml
 
 
 ## 0.1.3 / 2017-03-15
