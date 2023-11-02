@@ -12,6 +12,7 @@
 + Moved to a `src` dir structure like all my other projects.
 + Linted project.
 + Ran `black` on entire project.
++ Updated `README.md`.
 
 
 ## 0.1.3 / 2017-03-15
