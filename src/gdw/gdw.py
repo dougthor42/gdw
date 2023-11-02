@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Calculate Gross Die per Wafer (GDW).
 """

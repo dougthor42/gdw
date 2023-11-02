@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
 # gdw documentation build configuration file, created by
 # sphinx-quickstart on Mon Feb 13 11:56:09 2017.
