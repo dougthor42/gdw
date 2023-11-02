@@ -67,7 +67,6 @@ class TestWaferClass(unittest.TestCase):
 
 
 class TestDieClass(unittest.TestCase):
-
     def test_cant_add_attribute(self):
         die = gdw.Die(1, 1, 1, 1, 1)
         with self.assertRaises(AttributeError):
@@ -129,7 +128,7 @@ class TestFlatLocation(unittest.TestCase):
 
 class TestGDWCalculation(unittest.TestCase):
     known_values = {
-    # fmt: off
+        # fmt: off
         # name:   (((die_xy,      dia, offset_xy,      excl, scribe_excl, expected
         "ints":   (((5, 5),       150, ('even', 'even'), 5,     5),       546),
         "floats": (((5.0, 5.0),   150, ('even', 'even'), 5,     5),       546),
@@ -144,7 +143,7 @@ class TestGDWCalculation(unittest.TestCase):
         "t06":    (((2.9, 3.3),   150, (-1.65, 2.95),    4.5,   4.5),     1529),
         "t07":    (((2.69, 1.65), 150, (1.345, 2.1),     4.5,   4.5),     3346),
         "t08":    (((4.4, 5.02),  150, (0, -0.2),        4.5,   4.5),     648),
-    # fmt: on
+        # fmt: on
     }
 
     def test_known_values(self):
@@ -158,7 +157,6 @@ class TestGDWCalculation(unittest.TestCase):
 
 @unittest.skip("tested function not completed yet")
 class TestDieToRadius(unittest.TestCase):
-
     def test_known_values(self):
         pass
 
