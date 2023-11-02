@@ -9,8 +9,8 @@ Created on Tue Jun 17 14:01:24 2014
 @modified:      Tue Jun 17 14:01:24 2014
 @descr:         Unit Testing for gdwcalc.gdw module
 """
-
 import unittest
+
 import gdw.gdw as gdw
 
 
