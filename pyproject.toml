@@ -1,0 +1,69 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gdw"
+version = "0.1.3"
+description = "Gross Die per Wafer algorithms"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {file = "LICENSE"}
+authors = [
+    {name = "Douglas Thor"},  # so that package core metadata "Author" field gets populated.
+    {name = "Douglas Thor", email = "doug.thor@gmail.com"},
+]
+maintainers = []
+keywords = []
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: Utilities",
+]
+dependencies = []
+
+[project.optional-dependencies]
+
+[project.urls]
+"Source Code" = "https://github.com/dougthor42/gdw"
+"Changelog" = "https://github.com/dougthor42/gdw/blob/master/CHANGELOG.md"
+"Bug Tracker" = "https://github.com/dougthor42/gdw/issues"
+
+[tool.mypy]
+show_error_codes = true
+
+[tool.pytest.ini_options]
+# Note: We use the pytest-cov option "--cov-context test" here instead of the
+# coverage option "dynamic_context = test_function" in [tool.coverage.run] because
+# then the contexts will include the full pytest name and account for
+# parametrized fuctions.
+# Basically the difference between this (`pytest-cov`)
+#   tests/test_cli.py::TestCli::test_cli[test_args0]|run
+#   tests/test_cli.py::TestCli::test_cli[test_args1]|run
+#   tests/test_cli.py::TestCli::test_cli_invalid_args[invalid_args2]|run
+#   tests/test_cli.py::TestCli::test_cli_invalid_args[invalid_args3]|run
+# and this (just plain `coverage`)
+#   tests.test_cli.TestCli.test_cli_invalid_args
+#   tests.test_cli.TestCli.test_cli_prompts_for_days
+# The full pytest name shows us that the first two parametrized tests of
+# test_cli_invalid_args do NOT test the line.
+addopts = """\
+  -ra \
+  --cov gdw \
+  --cov-report html \
+  --cov-context test \
+  """
+
+[tool.coverage.html]
+show_contexts = true
+
+[tool.coverage.run]
+branch = true
+
+[tool.ruff]
+target-version = "py38"

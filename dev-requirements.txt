@@ -1,0 +1,6 @@
+coverage[toml]
+green
+pre-commit
+requests
+sphinx
+sphinx_rtd_theme
