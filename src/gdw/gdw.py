@@ -242,7 +242,7 @@ def max_dist_sqrd(center, size):
     return dist
 
 
-def flat_location(dia):
+def flat_location(dia: float) -> float:
     """
     Return the flat's y location W.R.T to wafer center for a given diameter.
 
