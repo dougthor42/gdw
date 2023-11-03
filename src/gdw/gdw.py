@@ -3,8 +3,11 @@ Calculate Gross Die per Wafer (GDW).
 """
 import math
 import warnings
+from typing import Any
 from typing import Dict
+from typing import Optional
 from typing import Tuple
+from typing import List
 from typing import Union
 
 
@@ -193,7 +196,9 @@ class Die(object):
 
     __slots__ = ["x_grid", "y_grid", "x_coord", "y_coord", "state"]
 
-    def __init__(self, x_grid, y_grid, x_coord, y_coord, state):
+    def __init__(
+        self, x_grid: int, y_grid: int, x_coord: float, y_coord: float, state: str
+    ) -> None:
         self.x_grid = x_grid
         self.y_grid = y_grid
         self.x_coord = x_coord
@@ -201,7 +206,7 @@ class Die(object):
         self.state = state
 
 
-def max_dist_sqrd(center, size):
+def max_dist_sqrd(center: Tuple[float, float], size: Tuple[float, float]) -> float:
     """
     Calculate the squared distnace to the furthest corner of a rectangle.
 
@@ -263,7 +268,9 @@ def flat_location(dia: float) -> float:
     return flat_y
 
 
-def calc_die_state(wafer, x_grid, y_grid, north_limit=None):
+def calc_die_state(
+    wafer: Wafer, x_grid: int, y_grid: int, north_limit: Optional[float] = None
+) -> Tuple[int, int, float, float, str]:
     """
     Calculate the state of a given die from its grid coordinates.
 
@@ -331,8 +338,13 @@ def calc_die_state(wafer, x_grid, y_grid, north_limit=None):
 
 
 def gdw(
-    die_size, dia, center_offset=("odd", "odd"), excl=5, flat_excl=5, north_limit=None
-):
+    die_size: Tuple[float, float],
+    dia: float,
+    center_offset: Tuple[OFFSET_TYPE, OFFSET_TYPE] = ("odd", "odd"),
+    excl: float = 5,
+    flat_excl: float = 5,
+    north_limit: Optional[float] = None,
+) -> Tuple[List[Tuple[Any]], Tuple[float, float]]:
     """
     Calculate Gross Die per Wafer (GDW).
 
@@ -404,7 +416,14 @@ def gdw(
     return (grid_points, wafer.grid_center_xy)
 
 
-def gdw_fo(die_size, dia, fo, excl=5, flat_excl=5, north_limit=None):
+def gdw_fo(
+    die_size: Tuple[float, float],
+    dia: float,
+    fo: Tuple[OFFSET_TYPE, OFFSET_TYPE],
+    excl: float = 5,
+    flat_excl: float = 5,
+    north_limit: Optional[float] = None,
+) -> Tuple[List[Tuple[Any]], Tuple[float, float]]:
     """
     Calculate Gross Die per Wafer (GDW) assuming fixed center offsets.
 
@@ -418,7 +437,13 @@ def gdw_fo(die_size, dia, fo, excl=5, flat_excl=5, north_limit=None):
     return gdw(die_size, dia, fo, excl, flat_excl, north_limit)
 
 
-def maxGDW(die_size, dia, excl, fssExcl, north_limit=None):
+def maxGDW(
+    die_size: Tuple[float, float],
+    dia: float,
+    excl: float,
+    fssExcl: float,
+    north_limit: Optional[float] = None,
+):
     """
     Calculate the maximum gross die per wafer.
 
