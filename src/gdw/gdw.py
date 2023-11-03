@@ -124,7 +124,7 @@ class Wafer(object):
         return 2 * int(math.ceil(self.dia / self.die_y))
 
     @property
-    def grid_max_xy(self) -> None:
+    def grid_max_xy(self) -> Tuple[float, float]:
         return (self.grid_max_x, self.grid_max_y)
 
     @property
