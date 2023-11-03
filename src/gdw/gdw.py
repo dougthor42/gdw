@@ -6,7 +6,6 @@ import warnings
 from typing import Dict
 from typing import Tuple
 from typing import Union
-from typing import Iterable
 
 
 # Type Aliases
@@ -128,18 +127,18 @@ class Wafer(object):
         return (self.grid_max_x, self.grid_max_y)
 
     @property
-    def x_offset(self) -> float:
+    def x_offset(self) -> OFFSET_TYPE:
         return self._x_offset
 
     @x_offset.setter
-    def x_offset(self, value: Union[str, float, int]) -> None:
+    def x_offset(self, value: OFFSET_TYPE) -> None:
         if value not in ("even", "odd") and not isinstance(value, (float, int)):
             err_str = "Invalid value: `{}`. Value must be 'odd', 'even', or a number."
             raise TypeError(err_str.format(value))
         self._x_offset = value
 
     @property
-    def y_offset(self):
+    def y_offset(self) -> OFFSET_TYPE:
         return self._y_offset
 
     @y_offset.setter
@@ -154,7 +153,7 @@ class Wafer(object):
         return (self.x_offset, self.y_offset)
 
     @center_offset.setter
-    def center_offset(self, value: Iterable[OFFSET_TYPE, OFFSET_TYPE]):
+    def center_offset(self, value: Tuple[OFFSET_TYPE, OFFSET_TYPE]) -> None:
         if isinstance(value, (list, tuple)) and len(value) == 2:
             self.x_offset, self.y_offset = value
         else:
