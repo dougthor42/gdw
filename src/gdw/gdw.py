@@ -3,10 +3,24 @@ Calculate Gross Die per Wafer (GDW).
 """
 import math
 import warnings
+from typing import Dict
+from typing import Tuple
+from typing import Union
+from typing import Iterable
+
+
+# Type Aliases
+OFFSET_TYPE = Union[str, float]
 
 
 # Defined by SEMI M1-0302
-FLAT_LENGTHS = {50: 15.88, 75: 22.22, 100: 32.5, 125: 42.5, 150: 57.5}
+FLAT_LENGTHS: Dict[float, float] = {
+    50: 15.88,
+    75: 22.22,
+    100: 32.5,
+    125: 42.5,
+    150: 57.5,
+}
 
 
 class Wafer(object):
@@ -33,8 +47,14 @@ class Wafer(object):
     """
 
     def __init__(
-        self, die_xy, center_offset, dia=150, excl=4.5, flat_excl=4.5, scribe_y=70.2
-    ):
+        self,
+        die_xy: Tuple[float, float],
+        center_offset: Tuple[OFFSET_TYPE, OFFSET_TYPE],
+        dia: float = 150,
+        excl: float = 4.5,
+        flat_excl: float = 4.5,
+        scribe_y: float = 70.2,
+    ) -> None:
         self._die_xy = die_xy
         self._center_offset = center_offset
         self._x_offset = center_offset[0]
@@ -48,71 +68,71 @@ class Wafer(object):
         self._center_grid = None
 
     @property
-    def dia(self):
+    def dia(self) -> float:
         return self._dia
 
     @dia.setter
-    def dia(self, value):
+    def dia(self, value: float) -> None:
         self._dia = value
 
     @property
-    def rad(self):
+    def rad(self) -> float:
         return self.dia / 2
 
     @property
-    def excl(self):
+    def excl(self) -> float:
         return self._excl
 
     @excl.setter
-    def excl(self, value):
+    def excl(self, value: float) -> None:
         self._excl = value
 
     @property
-    def flat_excl(self):
+    def flat_excl(self) -> float:
         return self._flat_excl
 
     @property
-    def excl_rad_sqrd(self):
+    def excl_rad_sqrd(self) -> float:
         return (self.dia / 2) ** 2 + (self.excl**2) - (self.dia * self.excl)
 
     @property
-    def die_xy(self):
+    def die_xy(self) -> Tuple[float, float]:
         return self._die_xy
 
     @die_xy.setter
-    def die_xy(self, value):
+    def die_xy(self, value: Tuple[float, float]) -> None:
         raise NotImplementedError
 
     @property
-    def die_x(self):
+    def die_x(self) -> float:
         return self.die_xy[0]
 
     @property
-    def die_y(self):
+    def die_y(self) -> float:
         return self.die_xy[1]
 
     @property
-    def flat_y(self):
+    def flat_y(self) -> float:
         return self._flat_y
 
     @property
-    def grid_max_x(self):
+    def grid_max_x(self) -> float:
         return 2 * int(math.ceil(self.dia / self.die_x))
 
     @property
-    def grid_max_y(self):
+    def grid_max_y(self) -> float:
         return 2 * int(math.ceil(self.dia / self.die_y))
 
     @property
-    def grid_max_xy(self):
+    def grid_max_xy(self) -> None:
         return (self.grid_max_x, self.grid_max_y)
 
     @property
-    def x_offset(self):
+    def x_offset(self) -> float:
         return self._x_offset
 
     @x_offset.setter
-    def x_offset(self, value):
+    def x_offset(self, value: Union[str, float, int]) -> None:
         if value not in ("even", "odd") and not isinstance(value, (float, int)):
             err_str = "Invalid value: `{}`. Value must be 'odd', 'even', or a number."
             raise TypeError(err_str.format(value))
@@ -123,33 +143,33 @@ class Wafer(object):
         return self._y_offset
 
     @y_offset.setter
-    def y_offset(self, value):
+    def y_offset(self, value: OFFSET_TYPE) -> None:
         if value not in ("even", "odd") and not isinstance(value, (float, int)):
             err_str = "Invalid value: `{}`. Value must be 'odd', 'even', or a number."
             raise TypeError(err_str.format(value))
         self._y_offset = value
 
     @property
-    def center_offset(self):
+    def center_offset(self) -> Tuple[OFFSET_TYPE, OFFSET_TYPE]:
         return (self.x_offset, self.y_offset)
 
     @center_offset.setter
-    def center_offset(self, value):
+    def center_offset(self, value: Iterable[OFFSET_TYPE, OFFSET_TYPE]):
         if isinstance(value, (list, tuple)) and len(value) == 2:
             self.x_offset, self.y_offset = value
         else:
             raise TypeError("value must be a list or tuple of length 2.")
 
     @property
-    def grid_center_x(self):
+    def grid_center_x(self) -> float:
         return self.grid_max_x / 2 + self.x_offset
 
     @property
-    def grid_center_y(self):
+    def grid_center_y(self) -> float:
         return self.grid_max_y / 2 + self.y_offset
 
     @property
-    def grid_center_xy(self):
+    def grid_center_xy(self) -> Tuple[float, float]:
         return (self.grid_center_x, self.grid_center_y)
 
 
