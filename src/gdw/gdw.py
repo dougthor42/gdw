@@ -4,9 +4,9 @@ Calculate Gross Die per Wafer (GDW).
 import math
 import warnings
 from typing import Dict
+from typing import List
 from typing import Optional
 from typing import Tuple
-from typing import List
 from typing import Union
 
 
