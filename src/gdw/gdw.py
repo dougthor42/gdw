@@ -3,7 +3,6 @@ Calculate Gross Die per Wafer (GDW).
 """
 import math
 import warnings
-from typing import Any
 from typing import Dict
 from typing import Optional
 from typing import Tuple
@@ -13,6 +12,7 @@ from typing import Union
 
 # Type Aliases
 OFFSET_TYPE = Union[str, float]
+DIE_STATE_TYPE = Tuple[int, int, float, float, str]
 
 
 # Defined by SEMI M1-0302
@@ -118,15 +118,15 @@ class Wafer(object):
         return self._flat_y
 
     @property
-    def grid_max_x(self) -> float:
+    def grid_max_x(self) -> int:
         return 2 * int(math.ceil(self.dia / self.die_x))
 
     @property
-    def grid_max_y(self) -> float:
+    def grid_max_y(self) -> int:
         return 2 * int(math.ceil(self.dia / self.die_y))
 
     @property
-    def grid_max_xy(self) -> Tuple[float, float]:
+    def grid_max_xy(self) -> Tuple[int, int]:
         return (self.grid_max_x, self.grid_max_y)
 
     @property
@@ -164,11 +164,11 @@ class Wafer(object):
 
     @property
     def grid_center_x(self) -> float:
-        return self.grid_max_x / 2 + self.x_offset
+        return self.grid_max_x / 2 + self.x_offset  # type: ignore[operator]
 
     @property
     def grid_center_y(self) -> float:
-        return self.grid_max_y / 2 + self.y_offset
+        return self.grid_max_y / 2 + self.y_offset  # type: ignore[operator]
 
     @property
     def grid_center_xy(self) -> Tuple[float, float]:
@@ -270,7 +270,7 @@ def flat_location(dia: float) -> float:
 
 def calc_die_state(
     wafer: Wafer, x_grid: int, y_grid: int, north_limit: Optional[float] = None
-) -> Tuple[int, int, float, float, str]:
+) -> DIE_STATE_TYPE:
     """
     Calculate the state of a given die from its grid coordinates.
 
@@ -344,7 +344,7 @@ def gdw(
     excl: float = 5,
     flat_excl: float = 5,
     north_limit: Optional[float] = None,
-) -> Tuple[List[Tuple[Any]], Tuple[float, float]]:
+) -> Tuple[List[DIE_STATE_TYPE], Tuple[float, float]]:
     """
     Calculate Gross Die per Wafer (GDW).
 
@@ -401,9 +401,10 @@ def gdw(
         wafer.y_offset = 0.5
 
     # convert the fixed offset to a die %age
+    # TODO: better type guarding
     if not all(i in ("odd", "even") for i in center_offset):
-        wafer.x_offset = center_offset[0] / wafer.die_x
-        wafer.y_offset = center_offset[1] / wafer.die_y
+        wafer.x_offset = center_offset[0] / wafer.die_x  # type: ignore[operator]
+        wafer.y_offset = center_offset[1] / wafer.die_y  # type: ignore[operator]
 
     grid_points = []
     for _x in range(1, wafer.grid_max_x):
@@ -423,7 +424,7 @@ def gdw_fo(
     excl: float = 5,
     flat_excl: float = 5,
     north_limit: Optional[float] = None,
-) -> Tuple[List[Tuple[Any]], Tuple[float, float]]:
+) -> Tuple[List[DIE_STATE_TYPE], Tuple[float, float]]:
     """
     Calculate Gross Die per Wafer (GDW) assuming fixed center offsets.
 
@@ -443,7 +444,7 @@ def maxGDW(
     excl: float,
     fssExcl: float,
     north_limit: Optional[float] = None,
-):
+) -> Tuple[List[DIE_STATE_TYPE], Tuple[float, float]]:
     """
     Calculate the maximum gross die per wafer.
 
@@ -475,7 +476,7 @@ def maxGDW(
     # list of available die shifts in XY pairs
     ds = [("odd", "odd"), ("odd", "even"), ("even", "odd"), ("even", "even")]
     # ds = [("even", "odd")]
-    j = (0, "")
+    j = (0, ("", ""), 0, 0, 0)
     probeList = []
     for shift in ds:
         probeCount = 0
@@ -547,7 +548,14 @@ def maxGDW(
 #                       )
 
 
-def gen_mask_file(path, probe_list, mask_name, die_xy, dia, fixed_start_coord=False):
+def gen_mask_file(
+    path: str,
+    probe_list,
+    mask_name: str,
+    die_xy: Tuple[float, float],
+    dia: float,
+    fixed_start_coord: bool = False,
+) -> None:
     """
     Generate a text file that can be read by the LabVIEW OWT program.
 
