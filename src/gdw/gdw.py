@@ -3,10 +3,26 @@ Calculate Gross Die per Wafer (GDW).
 """
 import math
 import warnings
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Tuple
+from typing import Union
+
+
+# Type Aliases
+OFFSET_TYPE = Union[str, float]
+DIE_STATE_TYPE = Tuple[int, int, float, float, str]
 
 
 # Defined by SEMI M1-0302
-FLAT_LENGTHS = {50: 15.88, 75: 22.22, 100: 32.5, 125: 42.5, 150: 57.5}
+FLAT_LENGTHS: Dict[float, float] = {
+    50: 15.88,
+    75: 22.22,
+    100: 32.5,
+    125: 42.5,
+    150: 57.5,
+}
 
 
 class Wafer(object):
@@ -33,8 +49,14 @@ class Wafer(object):
     """
 
     def __init__(
-        self, die_xy, center_offset, dia=150, excl=4.5, flat_excl=4.5, scribe_y=70.2
-    ):
+        self,
+        die_xy: Tuple[float, float],
+        center_offset: Tuple[OFFSET_TYPE, OFFSET_TYPE],
+        dia: float = 150,
+        excl: float = 4.5,
+        flat_excl: float = 4.5,
+        scribe_y: float = 70.2,
+    ) -> None:
         self._die_xy = die_xy
         self._center_offset = center_offset
         self._x_offset = center_offset[0]
@@ -48,108 +70,108 @@ class Wafer(object):
         self._center_grid = None
 
     @property
-    def dia(self):
+    def dia(self) -> float:
         return self._dia
 
     @dia.setter
-    def dia(self, value):
+    def dia(self, value: float) -> None:
         self._dia = value
 
     @property
-    def rad(self):
+    def rad(self) -> float:
         return self.dia / 2
 
     @property
-    def excl(self):
+    def excl(self) -> float:
         return self._excl
 
     @excl.setter
-    def excl(self, value):
+    def excl(self, value: float) -> None:
         self._excl = value
 
     @property
-    def flat_excl(self):
+    def flat_excl(self) -> float:
         return self._flat_excl
 
     @property
-    def excl_rad_sqrd(self):
+    def excl_rad_sqrd(self) -> float:
         return (self.dia / 2) ** 2 + (self.excl**2) - (self.dia * self.excl)
 
     @property
-    def die_xy(self):
+    def die_xy(self) -> Tuple[float, float]:
         return self._die_xy
 
     @die_xy.setter
-    def die_xy(self, value):
+    def die_xy(self, value: Tuple[float, float]) -> None:
         raise NotImplementedError
 
     @property
-    def die_x(self):
+    def die_x(self) -> float:
         return self.die_xy[0]
 
     @property
-    def die_y(self):
+    def die_y(self) -> float:
         return self.die_xy[1]
 
     @property
-    def flat_y(self):
+    def flat_y(self) -> float:
         return self._flat_y
 
     @property
-    def grid_max_x(self):
+    def grid_max_x(self) -> int:
         return 2 * int(math.ceil(self.dia / self.die_x))
 
     @property
-    def grid_max_y(self):
+    def grid_max_y(self) -> int:
         return 2 * int(math.ceil(self.dia / self.die_y))
 
     @property
-    def grid_max_xy(self):
+    def grid_max_xy(self) -> Tuple[int, int]:
         return (self.grid_max_x, self.grid_max_y)
 
     @property
-    def x_offset(self):
+    def x_offset(self) -> OFFSET_TYPE:
         return self._x_offset
 
     @x_offset.setter
-    def x_offset(self, value):
+    def x_offset(self, value: OFFSET_TYPE) -> None:
         if value not in ("even", "odd") and not isinstance(value, (float, int)):
             err_str = "Invalid value: `{}`. Value must be 'odd', 'even', or a number."
             raise TypeError(err_str.format(value))
         self._x_offset = value
 
     @property
-    def y_offset(self):
+    def y_offset(self) -> OFFSET_TYPE:
         return self._y_offset
 
     @y_offset.setter
-    def y_offset(self, value):
+    def y_offset(self, value: OFFSET_TYPE) -> None:
         if value not in ("even", "odd") and not isinstance(value, (float, int)):
             err_str = "Invalid value: `{}`. Value must be 'odd', 'even', or a number."
             raise TypeError(err_str.format(value))
         self._y_offset = value
 
     @property
-    def center_offset(self):
+    def center_offset(self) -> Tuple[OFFSET_TYPE, OFFSET_TYPE]:
         return (self.x_offset, self.y_offset)
 
     @center_offset.setter
-    def center_offset(self, value):
+    def center_offset(self, value: Tuple[OFFSET_TYPE, OFFSET_TYPE]) -> None:
         if isinstance(value, (list, tuple)) and len(value) == 2:
             self.x_offset, self.y_offset = value
         else:
             raise TypeError("value must be a list or tuple of length 2.")
 
     @property
-    def grid_center_x(self):
-        return self.grid_max_x / 2 + self.x_offset
+    def grid_center_x(self) -> float:
+        return self.grid_max_x / 2 + self.x_offset  # type: ignore[operator]
 
     @property
-    def grid_center_y(self):
-        return self.grid_max_y / 2 + self.y_offset
+    def grid_center_y(self) -> float:
+        return self.grid_max_y / 2 + self.y_offset  # type: ignore[operator]
 
     @property
-    def grid_center_xy(self):
+    def grid_center_xy(self) -> Tuple[float, float]:
         return (self.grid_center_x, self.grid_center_y)
 
 
@@ -174,7 +196,9 @@ class Die(object):
 
     __slots__ = ["x_grid", "y_grid", "x_coord", "y_coord", "state"]
 
-    def __init__(self, x_grid, y_grid, x_coord, y_coord, state):
+    def __init__(
+        self, x_grid: int, y_grid: int, x_coord: float, y_coord: float, state: str
+    ) -> None:
         self.x_grid = x_grid
         self.y_grid = y_grid
         self.x_coord = x_coord
@@ -182,7 +206,7 @@ class Die(object):
         self.state = state
 
 
-def max_dist_sqrd(center, size):
+def max_dist_sqrd(center: Tuple[float, float], size: Tuple[float, float]) -> float:
     """
     Calculate the squared distnace to the furthest corner of a rectangle.
 
@@ -222,7 +246,7 @@ def max_dist_sqrd(center, size):
     return dist
 
 
-def flat_location(dia):
+def flat_location(dia: float) -> float:
     """
     Return the flat's y location W.R.T to wafer center for a given diameter.
 
@@ -244,7 +268,9 @@ def flat_location(dia):
     return flat_y
 
 
-def calc_die_state(wafer, x_grid, y_grid, north_limit=None):
+def calc_die_state(
+    wafer: Wafer, x_grid: int, y_grid: int, north_limit: Optional[float] = None
+) -> DIE_STATE_TYPE:
     """
     Calculate the state of a given die from its grid coordinates.
 
@@ -312,8 +338,13 @@ def calc_die_state(wafer, x_grid, y_grid, north_limit=None):
 
 
 def gdw(
-    die_size, dia, center_offset=("odd", "odd"), excl=5, flat_excl=5, north_limit=None
-):
+    die_size: Tuple[float, float],
+    dia: float,
+    center_offset: Tuple[OFFSET_TYPE, OFFSET_TYPE] = ("odd", "odd"),
+    excl: float = 5,
+    flat_excl: float = 5,
+    north_limit: Optional[float] = None,
+) -> Tuple[List[DIE_STATE_TYPE], Tuple[float, float]]:
     """
     Calculate Gross Die per Wafer (GDW).
 
@@ -370,9 +401,10 @@ def gdw(
         wafer.y_offset = 0.5
 
     # convert the fixed offset to a die %age
+    # TODO: better type guarding
     if not all(i in ("odd", "even") for i in center_offset):
-        wafer.x_offset = center_offset[0] / wafer.die_x
-        wafer.y_offset = center_offset[1] / wafer.die_y
+        wafer.x_offset = center_offset[0] / wafer.die_x  # type: ignore[operator]
+        wafer.y_offset = center_offset[1] / wafer.die_y  # type: ignore[operator]
 
     grid_points = []
     for _x in range(1, wafer.grid_max_x):
@@ -385,7 +417,14 @@ def gdw(
     return (grid_points, wafer.grid_center_xy)
 
 
-def gdw_fo(die_size, dia, fo, excl=5, flat_excl=5, north_limit=None):
+def gdw_fo(
+    die_size: Tuple[float, float],
+    dia: float,
+    fo: Tuple[OFFSET_TYPE, OFFSET_TYPE],
+    excl: float = 5,
+    flat_excl: float = 5,
+    north_limit: Optional[float] = None,
+) -> Tuple[List[DIE_STATE_TYPE], Tuple[float, float]]:
     """
     Calculate Gross Die per Wafer (GDW) assuming fixed center offsets.
 
@@ -399,7 +438,13 @@ def gdw_fo(die_size, dia, fo, excl=5, flat_excl=5, north_limit=None):
     return gdw(die_size, dia, fo, excl, flat_excl, north_limit)
 
 
-def maxGDW(die_size, dia, excl, fssExcl, north_limit=None):
+def maxGDW(
+    die_size: Tuple[float, float],
+    dia: float,
+    excl: float,
+    fssExcl: float,
+    north_limit: Optional[float] = None,
+) -> Tuple[List[DIE_STATE_TYPE], Tuple[float, float]]:
     """
     Calculate the maximum gross die per wafer.
 
@@ -431,7 +476,7 @@ def maxGDW(die_size, dia, excl, fssExcl, north_limit=None):
     # list of available die shifts in XY pairs
     ds = [("odd", "odd"), ("odd", "even"), ("even", "odd"), ("even", "even")]
     # ds = [("even", "odd")]
-    j = (0, "")
+    j = (0, ("", ""), 0, 0, 0)
     probeList = []
     for shift in ds:
         probeCount = 0
@@ -503,7 +548,14 @@ def maxGDW(die_size, dia, excl, fssExcl, north_limit=None):
 #                       )
 
 
-def gen_mask_file(path, probe_list, mask_name, die_xy, dia, fixed_start_coord=False):
+def gen_mask_file(
+    path: str,
+    probe_list,
+    mask_name: str,
+    die_xy: Tuple[float, float],
+    dia: float,
+    fixed_start_coord: bool = False,
+) -> None:
     """
     Generate a text file that can be read by the LabVIEW OWT program.
 
