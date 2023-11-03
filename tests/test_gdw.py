@@ -6,7 +6,7 @@ import gdw.gdw as gdw
 class TestWaferClass(unittest.TestCase):
     """ """
 
-    def test_invalid_x_offset_raises_typeerror(self):
+    def test_invalid_x_offset_raises_typeerror(self) -> None:
         wafer = gdw.Wafer((1, 1), (0, 0))
 
         invalid_entries = (
@@ -25,7 +25,7 @@ class TestWaferClass(unittest.TestCase):
                 with self.assertRaises(TypeError):
                     wafer.x_offset = item
 
-    def test_invalid_y_offset_raises_typeerror(self):
+    def test_invalid_y_offset_raises_typeerror(self) -> None:
         wafer = gdw.Wafer((1, 1), (0, 0))
 
         invalid_entries = (
@@ -44,7 +44,7 @@ class TestWaferClass(unittest.TestCase):
                 with self.assertRaises(TypeError):
                     wafer.y_offset = item
 
-    def test_invalid_center_offset_raises_typeerror(self):
+    def test_invalid_center_offset_raises_typeerror(self) -> None:
         wafer = gdw.Wafer((1, 1), (0, 0))
 
         invalid_entries = (
@@ -67,7 +67,7 @@ class TestWaferClass(unittest.TestCase):
 
 
 class TestDieClass(unittest.TestCase):
-    def test_cant_add_attribute(self):
+    def test_cant_add_attribute(self) -> None:
         die = gdw.Die(1, 1, 1, 1, 1)
         with self.assertRaises(AttributeError):
             die.new_attribute = 1
@@ -95,7 +95,7 @@ class TestMaxDistSquared(unittest.TestCase):
         # fmt: on
     )
 
-    def test_known_values(self):
+    def test_known_values(self) -> None:
         for center, size, expected in self.known_values:
             with self.subTest(center=center, size=size):
                 result = gdw.max_dist_sqrd(center, size)
@@ -115,13 +115,13 @@ class TestFlatLocation(unittest.TestCase):
         (237.68, -118.84),
     )
 
-    def test_known_values(self):
+    def test_known_values(self) -> None:
         for dia, expected in self.known_values:
             with self.subTest(diameter=dia):
                 result = gdw.flat_location(dia)
                 self.assertAlmostEqual(result, expected)
 
-    def test_invalid_input_raises_typeerror(self):
+    def test_invalid_input_raises_typeerror(self) -> None:
         with self.assertRaises(TypeError):
             gdw.flat_location("hello")
 
@@ -146,7 +146,7 @@ class TestGDWCalculation(unittest.TestCase):
         # fmt: on
     }
 
-    def test_known_values(self):
+    def test_known_values(self) -> None:
         for k, (v, expected) in self.known_values.items():
             with self.subTest(test_name=k):
                 gdw_list = gdw.gdw(*v)
@@ -157,7 +157,7 @@ class TestGDWCalculation(unittest.TestCase):
 
 @unittest.skip("tested function not completed yet")
 class TestDieToRadius(unittest.TestCase):
-    def test_known_values(self):
+    def test_known_values(self) -> None:
         pass
 
 
@@ -172,7 +172,7 @@ class TestCalcDieState(unittest.TestCase):
         ((gdw.Wafer((5, 5), (0, 0), 150, 4.5, 4.5, 70.2), 40, 21, None), "excl"),
     )
 
-    def test_known_values(self):
+    def test_known_values(self) -> None:
         for (wafer, diex, diey, northlim), expected in self.known_values:
             with self.subTest(wafer=wafer, diex=diex, diey=diey):
                 result = gdw.calc_die_state(wafer, diex, diey, northlim)
