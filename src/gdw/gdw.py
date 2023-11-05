@@ -1,6 +1,7 @@
 """
 Calculate Gross Die per Wafer (GDW).
 """
+import dataclasses
 import math
 import warnings
 from typing import Dict
@@ -175,35 +176,33 @@ class Wafer(object):
         return (self.grid_center_x, self.grid_center_y)
 
 
+@dataclasses.dataclass
 class Die(object):
     """
     Holds Die information.
 
     Parameters
     ----------
-    x_grid : int
+    x_grid :
         The die's column coordinate
-    y_grid : int
+    y_grid :
         The die's row coordinate
-    x_coord : float
+    x_coord :
         The die's x coordinate on the wafer
-    y_coord : float
+    y_coord :
         The die's y coordinate on the wafer.
-    state : string
+    state :
         The die status. Can be one of ``'wafer'``, ``'flat'``,
         ``'excl'``, ``'flatExcl'``, or ``'probe'``
     """
 
     __slots__ = ["x_grid", "y_grid", "x_coord", "y_coord", "state"]
 
-    def __init__(
-        self, x_grid: int, y_grid: int, x_coord: float, y_coord: float, state: str
-    ) -> None:
-        self.x_grid = x_grid
-        self.y_grid = y_grid
-        self.x_coord = x_coord
-        self.y_coord = y_coord
-        self.state = state
+    x_grid: int
+    y_grid: int
+    x_coord: float
+    y_coord: float
+    state: str
 
 
 def max_dist_sqrd(center: Tuple[float, float], size: Tuple[float, float]) -> float:
