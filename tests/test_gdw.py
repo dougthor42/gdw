@@ -1,5 +1,5 @@
-import unittest
 from typing import Any
+from typing import Optional
 from typing import Tuple
 
 import pytest
@@ -160,28 +160,24 @@ def test_gdw_known_values(
     assert got == want
 
 
-@unittest.skip("tested function not completed yet")
-class TestDieToRadius(unittest.TestCase):
-    def test_known_values(self) -> None:
-        pass
+@pytest.mark.skip(reason="tested function not completed yet")
+def test_die_to_radius_known_values() -> None:
+    pass
 
 
-class TestCalcDieState(unittest.TestCase):
-    # note that the die X and die Y values are unadjusted for starting die!
-    known_values = (
-        ((gdw.Wafer((5, 5), (0, 0), 150, 4.5, 4.5, 70.2), 21, 17, None), "wafer"),
-        ((gdw.Wafer((5, 5), (0, 0), 150, 4.5, 4.5, 70.2), 30, 30, None), "probe"),
-        ((gdw.Wafer((5, 5), (0, 0), 150, 4.5, 4.5, 70.2), 28, 43, None), "flatExcl"),
-        ((gdw.Wafer((5, 5), (0, 0), 150, 4.5, 4.5, 70.2), 31, 44, None), "flat"),
-        ((gdw.Wafer((5, 5), (0, 0), 150, 4.5, 4.5, 70.2), 40, 21, None), "excl"),
-    )
-
-    def test_known_values(self) -> None:
-        for (wafer, diex, diey, northlim), expected in self.known_values:
-            with self.subTest(wafer=wafer, diex=diex, diey=diey):
-                result = gdw.calc_die_state(wafer, diex, diey, northlim)
-                self.assertEqual(result[-1], expected)
-
-
-if __name__ == "__main__":
-    unittest.main(verbosity=2)
+@pytest.mark.parametrize(
+    "wafer, diex, diey, northlim, want",
+    [
+        # note that the die X and die Y values are unadjusted for starting die!
+        (gdw.Wafer((5, 5), (0, 0), 150, 4.5, 4.5, 70.2), 21, 17, None, "wafer"),
+        (gdw.Wafer((5, 5), (0, 0), 150, 4.5, 4.5, 70.2), 30, 30, None, "probe"),
+        (gdw.Wafer((5, 5), (0, 0), 150, 4.5, 4.5, 70.2), 28, 43, None, "flatExcl"),
+        (gdw.Wafer((5, 5), (0, 0), 150, 4.5, 4.5, 70.2), 31, 44, None, "flat"),
+        (gdw.Wafer((5, 5), (0, 0), 150, 4.5, 4.5, 70.2), 40, 21, None, "excl"),
+    ],
+)
+def test_calc_die_state_known_values(
+    wafer: gdw.Wafer, diex: int, diey: int, northlim: Optional[float], want: str
+) -> None:
+    got = gdw.calc_die_state(wafer, diex, diey, northlim)
+    assert got[-1] == want
