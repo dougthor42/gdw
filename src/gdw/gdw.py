@@ -240,7 +240,7 @@ class Die(object):
 
 def max_dist_sqrd(center: Tuple[float, float], size: Tuple[float, float]) -> float:
     """
-    Calculate the squared distnace to the furthest corner of a rectangle.
+    Calculate the squared distance to the furthest corner of a rectangle.
 
     Assumes that the origin is ``(0, 0)``.
 
@@ -294,7 +294,7 @@ def flat_location(dia: float) -> float:
     """
     flat_y = -dia / 2  # assume wafer edge at first
     if dia in FLAT_LENGTHS:
-        # A flat is defined by SEMI M1-0302, so we calcualte where it is
+        # A flat is defined by SEMI M1-0302, so we calculate where it is
         flat_y = -math.sqrt((dia / 2) ** 2 - (FLAT_LENGTHS[dia] * 0.5) ** 2)
 
     return flat_y
@@ -331,7 +331,7 @@ def calc_die_state(
     # Find the die's furthest point
     die_max_sqrd = max_dist_sqrd(coord_die_center, wafer.die_xy)
 
-    # Determine the die's lower-left corner (since that's the orgin for wx).
+    # Determine the die's lower-left corner (since that's the origin for wx).
     coord_lower_left_x = coord_die_center_x - wafer.die_x / 2
     coord_lower_left_y = coord_die_center_y - wafer.die_y / 2
 
@@ -346,7 +346,7 @@ def calc_die_state(
         # it's outside of the exclusion
         status = DieState.EXCLUSION
     elif coord_lower_left_y < (wafer.flat_y + wafer.flat_excl):
-        # it's ouside the flat exclusion
+        # it's outside the flat exclusion
         status = DieState.FLAT_EXCLUSION
     elif north_limit is not None and coord_lower_left_y + wafer.die_y > north_limit:
         status = DieState.SCRIBE
@@ -579,7 +579,7 @@ def gen_mask_file(
     Generate a text file that can be read by the LabVIEW OWT program.
 
     probe_list should only contain die that are fully on the wafer. Die that
-    are within the edxlucion zones but still fully on the wafer *are*
+    are within the exclusion zones but still fully on the wafer *are*
     included.
 
     probe_list is what's returned from maxGDW, so it's a list of
