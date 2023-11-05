@@ -69,6 +69,7 @@ jobs:
     if: always()
     needs:
       - tests
+      - lint
     runs-on: ubuntu-latest
     steps:
       - name: Check status of all jobs.
