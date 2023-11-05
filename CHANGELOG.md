@@ -8,13 +8,14 @@
 + Added pre-commit config.
 + Purged all IP, deleted git history, make project public.
 + Moved dependencies to pyproject.toml
-+ Switched from `green` to `pytest` for unit testing.
++ Switched from `green` to `pytest` for test runner.
 + Moved to a `src` dir structure like all my other projects.
 + Linted project.
 + Ran `black` on entire project.
 + Updated `README.md`.
 + Added type annotations to most everything.
 + Made `Die` a dataclass and started migrating API to use that instead of tuples.
++ Tests were migrated from `unittest` to `pytest`.
 
 
 ## 0.1.3 / 2017-03-15
