@@ -16,6 +16,7 @@
 + Added type annotations to most everything.
 + Made `Die` a dataclass and started migrating API to use that instead of tuples.
 + Tests were migrated from `unittest` to `pytest`.
++ Migrated the die "state" strings to an enum.
 
 
 ## 0.1.3 / 2017-03-15
