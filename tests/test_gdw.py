@@ -160,6 +160,24 @@ def test_gdw_known_values(
     assert got == want
 
 
+def test_max_gdw() -> None:
+    die_size = (5, 4)
+    diameter = 150
+    excl = 3.5
+    flat_excl = 5
+    north_limit = None
+
+    want_gross_die = 730
+    want_grid_center = (30.5, 38.0)
+
+    got_probe_list, got_grid_center = gdw.maxGDW(
+        die_size, diameter, excl, flat_excl, north_limit
+    )
+    got_gross_die = sum(1 for x in got_probe_list if x.state == gdw.DieState.PROBE)
+    assert got_gross_die == want_gross_die
+    assert got_grid_center == want_grid_center
+
+
 @pytest.mark.skip(reason="tested function not completed yet")
 def test_die_to_radius_known_values() -> None:
     pass
