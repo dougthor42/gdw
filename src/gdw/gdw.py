@@ -269,7 +269,7 @@ def flat_location(dia: float) -> float:
 
 def calc_die_state(
     wafer: Wafer, x_grid: int, y_grid: int, north_limit: Optional[float] = None
-) -> DIE_STATE_TYPE:
+) -> Die:
     """
     Calculate the state of a given die from its grid coordinates.
 
@@ -284,14 +284,8 @@ def calc_die_state(
 
     Returns
     -------
-    x_grid, y_grid : int
-        The die's grid coordinate.
-    coord_lower_left_x, coord_lower_left_y : float
-        The die's lower-left coordinate. Used for plotting, since wx uses
-        the lower-left corner as the rectangle origin.
-    status : string
-        The die status. Can be one of ``'wafer'``, ``'flat'``,
-        ``'excl'``, ``'flatExcl'``, or ``'probe'``
+    die :
+        A Die object.
     """
     # Calculate the die center coordinates
     coord_die_center_x = wafer.die_x * (x_grid - wafer.grid_center_x)
@@ -327,7 +321,7 @@ def calc_die_state(
         # it's a good die, add it to the list
         status = "probe"
 
-    return (
+    return Die(
         x_grid,
         y_grid,
         coord_lower_left_x,
@@ -343,7 +337,7 @@ def gdw(
     excl: float = 5,
     flat_excl: float = 5,
     north_limit: Optional[float] = None,
-) -> Tuple[List[DIE_STATE_TYPE], Tuple[float, float]]:
+) -> Tuple[List[Die], Tuple[float, float]]:
     """
     Calculate Gross Die per Wafer (GDW).
 
@@ -372,7 +366,7 @@ def gdw(
 
     Returns
     -------
-    grid_points : list of tuples
+    grid_points : list of Die
         The list of die that cover the wafer. Each die is defined by
         a tuple of ``(x_grid, y_grid, x_coord, y_coord, die_status)``.
     grid_center_xy : tuple of length 2
@@ -405,11 +399,11 @@ def gdw(
         wafer.x_offset = center_offset[0] / wafer.die_x  # type: ignore[operator]
         wafer.y_offset = center_offset[1] / wafer.die_y  # type: ignore[operator]
 
-    grid_points = []
+    grid_points: List[Die] = []
     for _x in range(1, wafer.grid_max_x):
         for _y in range(1, wafer.grid_max_y):
             die = calc_die_state(wafer, _x, _y, north_limit)
-            if die[4] == "wafer":
+            if die.state == "wafer":
                 continue
             grid_points.append(die)
 
