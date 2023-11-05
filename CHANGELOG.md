@@ -14,6 +14,7 @@
 + Ran `black` on entire project.
 + Updated `README.md`.
 + Added type annotations to most everything.
++ Made `Die` a dataclass and started migrating API to use that instead of tuples.
 
 
 ## 0.1.3 / 2017-03-15
