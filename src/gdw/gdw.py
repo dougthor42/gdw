@@ -1,6 +1,7 @@
 """
 Calculate Gross Die per Wafer (GDW).
 """
+import dataclasses
 import math
 import warnings
 from typing import Dict
@@ -12,7 +13,6 @@ from typing import Union
 
 # Type Aliases
 OFFSET_TYPE = Union[str, float]
-DIE_STATE_TYPE = Tuple[int, int, float, float, str]
 
 
 # Defined by SEMI M1-0302
@@ -175,35 +175,51 @@ class Wafer(object):
         return (self.grid_center_x, self.grid_center_y)
 
 
+@dataclasses.dataclass
 class Die(object):
     """
     Holds Die information.
 
     Parameters
     ----------
-    x_grid : int
+    x_grid :
         The die's column coordinate
-    y_grid : int
+    y_grid :
         The die's row coordinate
-    x_coord : float
+    x_coord :
         The die's x coordinate on the wafer
-    y_coord : float
+    y_coord :
         The die's y coordinate on the wafer.
-    state : string
+    state :
         The die status. Can be one of ``'wafer'``, ``'flat'``,
         ``'excl'``, ``'flatExcl'``, or ``'probe'``
     """
 
     __slots__ = ["x_grid", "y_grid", "x_coord", "y_coord", "state"]
 
-    def __init__(
-        self, x_grid: int, y_grid: int, x_coord: float, y_coord: float, state: str
-    ) -> None:
-        self.x_grid = x_grid
-        self.y_grid = y_grid
-        self.x_coord = x_coord
-        self.y_coord = y_coord
-        self.state = state
+    x_grid: int
+    y_grid: int
+    x_coord: float
+    y_coord: float
+    state: str
+
+    # Temporary to keep API the same
+    def __getitem__(self, key: int) -> Union[int, float, str]:
+        if not isinstance(key, int):
+            raise ValueError("Die class only supports ints for getitem: Die()[int]")
+
+        if key == 0 or key == -5:
+            return self.x_grid
+        elif key == 1 or key == -4:
+            return self.y_grid
+        elif key == 2 or key == -3:
+            return self.x_coord
+        elif key == 3 or key == -2:
+            return self.y_coord
+        elif key == 4 or key == -1:
+            return self.state
+        else:
+            raise IndexError("Object only has 5 elements.")
 
 
 def max_dist_sqrd(center: Tuple[float, float], size: Tuple[float, float]) -> float:
@@ -270,7 +286,7 @@ def flat_location(dia: float) -> float:
 
 def calc_die_state(
     wafer: Wafer, x_grid: int, y_grid: int, north_limit: Optional[float] = None
-) -> DIE_STATE_TYPE:
+) -> Die:
     """
     Calculate the state of a given die from its grid coordinates.
 
@@ -285,14 +301,8 @@ def calc_die_state(
 
     Returns
     -------
-    x_grid, y_grid : int
-        The die's grid coordinate.
-    coord_lower_left_x, coord_lower_left_y : float
-        The die's lower-left coordinate. Used for plotting, since wx uses
-        the lower-left corner as the rectangle origin.
-    status : string
-        The die status. Can be one of ``'wafer'``, ``'flat'``,
-        ``'excl'``, ``'flatExcl'``, or ``'probe'``
+    die :
+        A Die object.
     """
     # Calculate the die center coordinates
     coord_die_center_x = wafer.die_x * (x_grid - wafer.grid_center_x)
@@ -328,7 +338,7 @@ def calc_die_state(
         # it's a good die, add it to the list
         status = "probe"
 
-    return (
+    return Die(
         x_grid,
         y_grid,
         coord_lower_left_x,
@@ -344,7 +354,7 @@ def gdw(
     excl: float = 5,
     flat_excl: float = 5,
     north_limit: Optional[float] = None,
-) -> Tuple[List[DIE_STATE_TYPE], Tuple[float, float]]:
+) -> Tuple[List[Die], Tuple[float, float]]:
     """
     Calculate Gross Die per Wafer (GDW).
 
@@ -373,7 +383,7 @@ def gdw(
 
     Returns
     -------
-    grid_points : list of tuples
+    grid_points : list of Die
         The list of die that cover the wafer. Each die is defined by
         a tuple of ``(x_grid, y_grid, x_coord, y_coord, die_status)``.
     grid_center_xy : tuple of length 2
@@ -406,11 +416,11 @@ def gdw(
         wafer.x_offset = center_offset[0] / wafer.die_x  # type: ignore[operator]
         wafer.y_offset = center_offset[1] / wafer.die_y  # type: ignore[operator]
 
-    grid_points = []
+    grid_points: List[Die] = []
     for _x in range(1, wafer.grid_max_x):
         for _y in range(1, wafer.grid_max_y):
             die = calc_die_state(wafer, _x, _y, north_limit)
-            if die[4] == "wafer":
+            if die.state == "wafer":
                 continue
             grid_points.append(die)
 
@@ -424,7 +434,7 @@ def gdw_fo(
     excl: float = 5,
     flat_excl: float = 5,
     north_limit: Optional[float] = None,
-) -> Tuple[List[DIE_STATE_TYPE], Tuple[float, float]]:
+) -> Tuple[List[Die], Tuple[float, float]]:
     """
     Calculate Gross Die per Wafer (GDW) assuming fixed center offsets.
 
@@ -444,7 +454,7 @@ def maxGDW(
     excl: float,
     fssExcl: float,
     north_limit: Optional[float] = None,
-) -> Tuple[List[DIE_STATE_TYPE], Tuple[float, float]]:
+) -> Tuple[List[Die], Tuple[float, float]]:
     """
     Calculate the maximum gross die per wafer.
 
