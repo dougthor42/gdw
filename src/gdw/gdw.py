@@ -521,6 +521,12 @@ def maxGDW(
     return (probeList, gridCenter)
 
 
+def count_by_state(die_list: List[Die], state: DieState) -> int:
+    """Return the count of die that have the given ``state``."""
+    count = sum(1 for x in die_list if x.state == state)
+    return count
+
+
 def gen_mask_file(
     path: str,
     probe_list,

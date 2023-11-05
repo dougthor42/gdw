@@ -233,3 +233,26 @@ def test_calc_die_state_known_values(
 ) -> None:
     got = gdw.calc_die_state(wafer, diex, diey, northlim)
     assert got[-1] == want
+
+
+@pytest.mark.parametrize(
+    "state, want",
+    [
+        (gdw.DieState.EXCLUSION, 3),
+        (gdw.DieState.FLAT, 2),
+        (gdw.DieState.SCRIBE, 1),
+    ],
+)
+def test_count_by_state(state: gdw.DieState, want: int) -> None:
+    data = [
+        gdw.Die(1, 1, 1, 1, gdw.DieState.PROBE),
+        gdw.Die(1, 1, 1, 1, gdw.DieState.EXCLUSION),
+        gdw.Die(1, 1, 1, 1, gdw.DieState.EXCLUSION),
+        gdw.Die(1, 1, 1, 1, gdw.DieState.EXCLUSION),
+        gdw.Die(1, 1, 1, 1, gdw.DieState.FLAT),
+        gdw.Die(1, 1, 1, 1, gdw.DieState.FLAT),
+        gdw.Die(1, 1, 1, 1, gdw.DieState.SCRIBE),
+        gdw.Die(1, 1, 1, 1, gdw.DieState.WAFER),
+    ]
+    got = gdw.count_by_state(data, state)
+    assert got == want
