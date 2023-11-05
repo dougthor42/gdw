@@ -204,6 +204,24 @@ class Die(object):
     y_coord: float
     state: str
 
+    # Temporary to keep API the same
+    def __getitem__(self, key: int) -> Union[int, float, str]:
+        if not isinstance(key, int):
+            raise ValueError("Die class only supports ints for getitem: Die()[int]")
+
+        if key == 0 or key == -5:
+            return self.x_grid
+        elif key == 1 or key == -4:
+            return self.y_grid
+        elif key == 2 or key == -3:
+            return self.x_coord
+        elif key == 3 or key == -2:
+            return self.y_coord
+        elif key == 4 or key == -1:
+            return self.state
+        else:
+            raise IndexError("Object only has 5 elements.")
+
 
 def max_dist_sqrd(center: Tuple[float, float], size: Tuple[float, float]) -> float:
     """
@@ -417,7 +435,7 @@ def gdw_fo(
     excl: float = 5,
     flat_excl: float = 5,
     north_limit: Optional[float] = None,
-) -> Tuple[List[DIE_STATE_TYPE], Tuple[float, float]]:
+) -> Tuple[List[Die], Tuple[float, float]]:
     """
     Calculate Gross Die per Wafer (GDW) assuming fixed center offsets.
 
@@ -437,7 +455,7 @@ def maxGDW(
     excl: float,
     fssExcl: float,
     north_limit: Optional[float] = None,
-) -> Tuple[List[DIE_STATE_TYPE], Tuple[float, float]]:
+) -> Tuple[List[Die], Tuple[float, float]]:
     """
     Calculate the maximum gross die per wafer.
 
