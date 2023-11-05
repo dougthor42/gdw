@@ -1,71 +1,71 @@
 import unittest
+from typing import Any
 from typing import Dict
 from typing import Tuple
+
+import pytest
 
 import gdw.gdw as gdw
 
 
-class TestWaferClass(unittest.TestCase):
-    """ """
+@pytest.mark.parametrize(
+    "item",
+    [
+        # wrong value
+        "hello",
+        # wrong type
+        {"a": 3},
+        (1,),
+        # not a single item
+        ("a", 1),
+        (-3, "a"),
+    ],
+)
+def test_Wafer_invalid_x_offset_raises_typeerror(item: Any) -> None:
+    wafer = gdw.Wafer((1, 1), (0, 0))
+    with pytest.raises(TypeError):
+        wafer.x_offset = item  # type: ignore[assignment]
 
-    def test_invalid_x_offset_raises_typeerror(self) -> None:
-        wafer = gdw.Wafer((1, 1), (0, 0))
 
-        invalid_entries = (
-            # wrong value
-            "hello",
-            # wrong type
-            {"a": 3},
-            (1,),
-            # not a single item
-            ("a", 1),
-            (-3, "a"),
-        )
+@pytest.mark.parametrize(
+    "item",
+    [
+        # wrong value
+        "hello",
+        # wrong type
+        {"a": 3},
+        (1,),
+        # not a single item
+        ("a", 1),
+        (-3, "a"),
+    ],
+)
+def test_Wafer_invalid_y_offset_raises_typeerror(item: Any) -> None:
+    wafer = gdw.Wafer((1, 1), (0, 0))
+    with pytest.raises(TypeError):
+        wafer.y_offset = item  # type: ignore[assignment]
 
-        for item in invalid_entries:
-            with self.subTest(invalid_value=item):
-                with self.assertRaises(TypeError):
-                    wafer.x_offset = item  # type: ignore[assignment]
 
-    def test_invalid_y_offset_raises_typeerror(self) -> None:
-        wafer = gdw.Wafer((1, 1), (0, 0))
+@pytest.mark.parametrize(
+    "item",
+    [
+        # not lists or tuples
+        "hello",
+        123,
+        # correct length, but mixed or invalid entries
+        ("a", 1),
+        (-3, "a"),
+        # incorrect length
+        ("even", "even", "even"),
+        (1, 2, 3, 4),
+        (1,),
+    ],
+)
+def test_Wafer_invalid_center_offset_raises_typeerror(item: Any) -> None:
+    wafer = gdw.Wafer((1, 1), (0, 0))
 
-        invalid_entries = (
-            # wrong value
-            "hello",
-            # wrong type
-            {"a": 3},
-            (1,),
-            # not a single item
-            ("a", 1),
-            (-3, "a"),
-        )
-
-        for item in invalid_entries:
-            with self.subTest(invalid_value=item):
-                with self.assertRaises(TypeError):
-                    wafer.y_offset = item  # type: ignore[assignment]
-
-    def test_invalid_center_offset_raises_typeerror(self) -> None:
-        wafer = gdw.Wafer((1, 1), (0, 0))
-
-        invalid_entries = (
-            # not lists or tuples
-            "hello",
-            123,
-            # correct length, but mixed or invalid entries
-            ("a", 1),
-            (-3, "a"),
-            # incorrect length
-            ("even", "even", "even"),
-            (1, 2, 3, 4),
-            (1,),
-        )
-
-        for item in invalid_entries:
-            with self.subTest(invalid_value=item):
-                with self.assertRaises(TypeError):
-                    wafer.center_offset = item  # type: ignore[assignment]
+    with pytest.raises(TypeError):
+        wafer.center_offset = item  # type: ignore[assignment]
 
 
 class TestDieClass(unittest.TestCase):
