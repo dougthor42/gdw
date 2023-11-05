@@ -4,7 +4,6 @@ Calculate Gross Die per Wafer (GDW).
 import dataclasses
 import enum
 import math
-import warnings
 from typing import Dict
 from typing import List
 from typing import Optional
@@ -440,23 +439,6 @@ def gdw(
     return (grid_points, wafer.grid_center_xy)
 
 
-def gdw_fo(
-    die_size: Tuple[float, float],
-    dia: float,
-    fo: Tuple[OFFSET_TYPE, OFFSET_TYPE],
-    excl: float = 5,
-    flat_excl: float = 5,
-    north_limit: Optional[float] = None,
-) -> Tuple[List[Die], Tuple[float, float]]:
-    """
-    Calculate Gross Die per Wafer (GDW) assuming fixed center offsets.
-
-    xCol and yRow are 1 indexed.
-    """
-    warnings.warn("Use `gdw` function instead", PendingDeprecationWarning)
-    return gdw(die_size, dia, fo, excl, flat_excl, north_limit)
-
-
 def maxGDW(
     die_size: Tuple[float, float],
     dia: float,
@@ -466,9 +448,6 @@ def maxGDW(
 ) -> Tuple[List[Die], Tuple[float, float]]:
     """
     Calculate the maximum gross die per wafer.
-
-    Returns list of tuples of (xCol, yRow, xCoord, yCoord, dieStatus)
-    xCol and yRow are 1 indexed.
 
     Parameters
     ----------
@@ -483,8 +462,7 @@ def maxGDW(
 
     Returns
     -------
-    probeList : list of tuples
-        A list of 5-tuples: (xCol, yRow, xCoord, yCoord, dieStatus)
+    probeList :
     gridCenter : tuple
         A 2-tuple of (grid_x, grid_y) center coordinates.
 
@@ -541,30 +519,6 @@ def maxGDW(
     )
 
     return (probeList, gridCenter)
-
-
-# def plotGDW(dieList, die_size, dia, excl, fssExcl, grid_center):
-#    """
-#    Plots up a wafer map of dieList, coloring based on the bin the die
-#    die belongs to.
-#
-#    Uses my xw Code
-#
-#    dieList is a list of tuples (xCol, yRow, xCoord, yCoord, dieStatus) where
-#    xCol and yRow are 1-indexed and dieStatus is a psudo-enum of:
-#        ["probe", "flat", "excl", "flatExcl", "wafer"]
-#        (as defined by the gdw routine)
-#    die size is a tuple of (x_size, y_size) and is in mm.
-#    dia, excl, and fssExcl are in mm.
-#    """
-#    wm_app.WaferMapApp(dieList,
-#                       die_size,
-#                       grid_center,
-#                       dia,
-#                       excl,
-#                       fssExcl,
-#                       data_type='discrete'
-#                       )
 
 
 def gen_mask_file(
@@ -675,7 +629,3 @@ def gen_mask_file(
         openf.write('Edge Inking = "' + edge_string[:-2] + '"\n')
         openf.write("\n[Devices]\n")
         openf.write('PCM = "0.2,0,0,,T"\n')
-
-
-if __name__ == "__main__":
-    print("This file is not meant to be run as a module.")
