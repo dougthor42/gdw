@@ -2,6 +2,7 @@
 Calculate Gross Die per Wafer (GDW).
 """
 import dataclasses
+import enum
 import math
 import warnings
 from typing import Dict
@@ -23,6 +24,22 @@ FLAT_LENGTHS: Dict[float, float] = {
     125: 42.5,
     150: 57.5,
 }
+
+
+# TODO(py3.11): Switch to enum.StrEnum)
+# TODO: Switch to standard enum once other projects that use this have been
+#   updated (there's no reason this needs to be a str).
+class DieState(str, enum.Enum):
+    WAFER = "wafer"  # die is off edge of wafer
+    FLAT = "flat"  # die is off wafer flat
+    EXCLUSION = "excl"  # die is within edge exclusion zone
+    FLAT_EXCLUSION = "flatExcl"  # die is within flat exclusion zone
+    SCRIBE = "scribe"  # die is within the scribe exclusion zone
+    PROBE = "probe"  # die is within probing area
+
+    # TODO(py3.11): Can remove.
+    def __str__(self) -> str:
+        return self.value
 
 
 class Wafer(object):
@@ -191,8 +208,7 @@ class Die(object):
     y_coord :
         The die's y coordinate on the wafer.
     state :
-        The die status. Can be one of ``'wafer'``, ``'flat'``,
-        ``'excl'``, ``'flatExcl'``, or ``'probe'``
+        The die state.
     """
 
     __slots__ = ["x_grid", "y_grid", "x_coord", "y_coord", "state"]
@@ -201,10 +217,10 @@ class Die(object):
     y_grid: int
     x_coord: float
     y_coord: float
-    state: str
+    state: DieState
 
     # Temporary to keep API the same
-    def __getitem__(self, key: int) -> Union[int, float, str]:
+    def __getitem__(self, key: int) -> Union[int, float, DieState]:
         if not isinstance(key, int):
             raise ValueError("Die class only supports ints for getitem: Die()[int]")
 
@@ -224,7 +240,7 @@ class Die(object):
 
 def max_dist_sqrd(center: Tuple[float, float], size: Tuple[float, float]) -> float:
     """
-    Calculate the squared distnace to the furthest corner of a rectangle.
+    Calculate the squared distance to the furthest corner of a rectangle.
 
     Assumes that the origin is ``(0, 0)``.
 
@@ -278,7 +294,7 @@ def flat_location(dia: float) -> float:
     """
     flat_y = -dia / 2  # assume wafer edge at first
     if dia in FLAT_LENGTHS:
-        # A flat is defined by SEMI M1-0302, so we calcualte where it is
+        # A flat is defined by SEMI M1-0302, so we calculate where it is
         flat_y = -math.sqrt((dia / 2) ** 2 - (FLAT_LENGTHS[dia] * 0.5) ** 2)
 
     return flat_y
@@ -315,28 +331,28 @@ def calc_die_state(
     # Find the die's furthest point
     die_max_sqrd = max_dist_sqrd(coord_die_center, wafer.die_xy)
 
-    # Determine the die's lower-left corner (since that's the orgin for wx).
+    # Determine the die's lower-left corner (since that's the origin for wx).
     coord_lower_left_x = coord_die_center_x - wafer.die_x / 2
     coord_lower_left_y = coord_die_center_y - wafer.die_y / 2
 
     # Classify the die
     if die_max_sqrd > wafer.rad**2:
         # it's off the wafer, don't add to list.
-        status = "wafer"
+        status = DieState.WAFER
     elif coord_lower_left_y < wafer.flat_y:
         # it's off the flat
-        status = "flat"
+        status = DieState.FLAT
     elif die_max_sqrd > wafer.excl_rad_sqrd:
         # it's outside of the exclusion
-        status = "excl"
+        status = DieState.EXCLUSION
     elif coord_lower_left_y < (wafer.flat_y + wafer.flat_excl):
-        # it's ouside the flat exclusion
-        status = "flatExcl"
+        # it's outside the flat exclusion
+        status = DieState.FLAT_EXCLUSION
     elif north_limit is not None and coord_lower_left_y + wafer.die_y > north_limit:
-        status = "scribe"
+        status = DieState.SCRIBE
     else:
         # it's a good die, add it to the list
-        status = "probe"
+        status = DieState.PROBE
 
     return Die(
         x_grid,
@@ -392,9 +408,6 @@ def gdw(
     Notes
     -----
     + xCol and yRow are 1 indexed
-    + Possible values for `die_status` are::
-
-        'wafer', 'flat', 'excl', 'flatExcl', 'probe'
     """
     if north_limit is None:
         north_limit = dia
@@ -420,7 +433,7 @@ def gdw(
     for _x in range(1, wafer.grid_max_x):
         for _y in range(1, wafer.grid_max_y):
             die = calc_die_state(wafer, _x, _y, north_limit)
-            if die.state == "wafer":
+            if die.state == DieState.WAFER:
                 continue
             grid_points.append(die)
 
@@ -439,10 +452,6 @@ def gdw_fo(
     Calculate Gross Die per Wafer (GDW) assuming fixed center offsets.
 
     xCol and yRow are 1 indexed.
-
-    values for dieStatus are::
-
-      DIE_STATUS = [wafer, flat, excl, flatExcl, probe]
     """
     warnings.warn("Use `gdw` function instead", PendingDeprecationWarning)
     return gdw(die_size, dia, fo, excl, flat_excl, north_limit)
@@ -495,13 +504,13 @@ def maxGDW(
         flatExclCount = 0
         dieList, grid_center = gdw(die_size, dia, shift, excl, fssExcl, north_limit)
         for die in dieList:
-            if die[-1] == "probe":
+            if die[-1] == DieState.PROBE:
                 probeCount += 1
-            elif die[-1] == "excl":
+            elif die[-1] == DieState.EXCLUSION:
                 edgeCount += 1
-            elif die[-1] == "flat":
+            elif die[-1] == DieState.FLAT:
                 flatCount += 1
-            elif die[-1] == "flatExcl":
+            elif die[-1] == DieState.FLAT_EXCLUSION:
                 flatExclCount += 1
 
         print(shift, probeCount)
@@ -570,7 +579,7 @@ def gen_mask_file(
     Generate a text file that can be read by the LabVIEW OWT program.
 
     probe_list should only contain die that are fully on the wafer. Die that
-    are within the edxlucion zones but still fully on the wafer *are*
+    are within the exclusion zones but still fully on the wafer *are*
     included.
 
     probe_list is what's returned from maxGDW, so it's a list of
@@ -588,8 +597,8 @@ def gen_mask_file(
         # Adjust the original data to the origin
         # this defines where (1, 1) actually is.
         # TODO: Verify that "- 2" works for all cases
-        edge_row = min({i[1] for i in probe_list if i[2] == "excl"}) - 2
-        edge_col = min({i[0] for i in probe_list if i[2] == "excl"}) - 2
+        edge_row = min({i[1] for i in probe_list if i[2] == DieState.EXCLUSION}) - 2
+        edge_col = min({i[0] for i in probe_list if i[2] == DieState.EXCLUSION}) - 2
         print("edge_row = {}  edge_col = {}".format(edge_row, edge_col))
 
         for _i, _ in enumerate(probe_list):
@@ -621,12 +630,12 @@ def gen_mask_file(
         _rc = (item[1], item[0])
         _state = item[2]
         try:
-            if _state == "probe":
+            if _state == DieState.PROBE:
                 test_all_list.remove(_rc)
                 die_to_probe.append(_rc)
-            if _state in ("excl", "flatExcl", "probe"):
+            if _state in (DieState.EXCLUSION, DieState.FLAT_EXCLUSION, DieState.PROBE):
                 every_list.remove(_rc)
-            if _state in ("excl", "flatExcl"):
+            if _state in (DieState.EXCLUSION, DieState.FLAT_EXCLUSION):
                 edge_list.remove(_rc)
         except ValueError:
             #  print(_rc, _state)

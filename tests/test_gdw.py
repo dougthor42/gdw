@@ -67,7 +67,7 @@ def test_Wafer_invalid_center_offset_raises_typeerror(item: Any) -> None:
 
 
 def test_Die_cant_add_attribute() -> None:
-    die = gdw.Die(1, 1, 1, 1, "1")
+    die = gdw.Die(1, 1, 1, 1, gdw.DieState.FLAT)
     with pytest.raises(AttributeError):
         die.new_attribute = 1  # type: ignore[attr-defined]
 
@@ -156,7 +156,7 @@ def test_gdw_known_values(
 ) -> None:
     gdw_list = gdw.gdw(die_xy, diameter, offset_xy, excl, scribe_excl)
     # count only die that are probed
-    got = sum(1 for x in gdw_list[0] if x[4] == "probe")
+    got = sum(1 for x in gdw_list[0] if x[4] == gdw.DieState.PROBE)
     assert got == want
 
 
@@ -169,15 +169,49 @@ def test_die_to_radius_known_values() -> None:
     "wafer, diex, diey, northlim, want",
     [
         # note that the die X and die Y values are unadjusted for starting die!
-        (gdw.Wafer((5, 5), (0, 0), 150, 4.5, 4.5, 70.2), 21, 17, None, "wafer"),
-        (gdw.Wafer((5, 5), (0, 0), 150, 4.5, 4.5, 70.2), 30, 30, None, "probe"),
-        (gdw.Wafer((5, 5), (0, 0), 150, 4.5, 4.5, 70.2), 28, 43, None, "flatExcl"),
-        (gdw.Wafer((5, 5), (0, 0), 150, 4.5, 4.5, 70.2), 31, 44, None, "flat"),
-        (gdw.Wafer((5, 5), (0, 0), 150, 4.5, 4.5, 70.2), 40, 21, None, "excl"),
+        (
+            gdw.Wafer((5, 5), (0, 0), 150, 4.5, 4.5, 70.2),
+            21,
+            17,
+            None,
+            gdw.DieState.WAFER,
+        ),
+        (
+            gdw.Wafer((5, 5), (0, 0), 150, 4.5, 4.5, 70.2),
+            30,
+            30,
+            None,
+            gdw.DieState.PROBE,
+        ),
+        (
+            gdw.Wafer((5, 5), (0, 0), 150, 4.5, 4.5, 70.2),
+            28,
+            43,
+            None,
+            gdw.DieState.FLAT_EXCLUSION,
+        ),
+        (
+            gdw.Wafer((5, 5), (0, 0), 150, 4.5, 4.5, 70.2),
+            31,
+            44,
+            None,
+            gdw.DieState.FLAT,
+        ),
+        (
+            gdw.Wafer((5, 5), (0, 0), 150, 4.5, 4.5, 70.2),
+            40,
+            21,
+            None,
+            gdw.DieState.EXCLUSION,
+        ),
     ],
 )
 def test_calc_die_state_known_values(
-    wafer: gdw.Wafer, diex: int, diey: int, northlim: Optional[float], want: str
+    wafer: gdw.Wafer,
+    diex: int,
+    diey: int,
+    northlim: Optional[float],
+    want: gdw.DieState,
 ) -> None:
     got = gdw.calc_die_state(wafer, diex, diey, northlim)
     assert got[-1] == want
