@@ -13,7 +13,6 @@ from typing import Union
 
 # Type Aliases
 OFFSET_TYPE = Union[str, float]
-DIE_STATE_TYPE = Tuple[int, int, float, float, str]
 
 
 # Defined by SEMI M1-0302
