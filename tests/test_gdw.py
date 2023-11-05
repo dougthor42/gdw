@@ -63,20 +63,19 @@ def test_Wafer_invalid_y_offset_raises_typeerror(item: Any) -> None:
 )
 def test_Wafer_invalid_center_offset_raises_typeerror(item: Any) -> None:
     wafer = gdw.Wafer((1, 1), (0, 0))
-
     with pytest.raises(TypeError):
         wafer.center_offset = item  # type: ignore[assignment]
 
 
-class TestDieClass(unittest.TestCase):
-    def test_cant_add_attribute(self) -> None:
-        die = gdw.Die(1, 1, 1, 1, "1")
-        with self.assertRaises(AttributeError):
-            die.new_attribute = 1  # type: ignore[attr-defined]
+def test_Die_cant_add_attribute() -> None:
+    die = gdw.Die(1, 1, 1, 1, "1")
+    with pytest.raises(AttributeError):
+        die.new_attribute = 1  # type: ignore[attr-defined]
 
 
-class TestMaxDistSquared(unittest.TestCase):
-    known_values = (
+@pytest.mark.parametrize(
+    "center_coord, box_size, want",
+    [
         # fmt: off
         # center coord,  box size,       expected value
         ((0, 0),        (2, 2),          2),
@@ -94,13 +93,13 @@ class TestMaxDistSquared(unittest.TestCase):
         ((100000, 100000), (2, 2),       20000400002),
         ((1000, 0),     (100, 0.00001),  1102500),
         # fmt: on
-    )
-
-    def test_known_values(self) -> None:
-        for center, size, expected in self.known_values:
-            with self.subTest(center=center, size=size):
-                result = gdw.max_dist_sqrd(center, size)
-                self.assertAlmostEqual(result, expected)
+    ],
+)
+def test_max_dist_squared_known_values(
+    center_coord: Tuple[float, float], box_size: Tuple[float, float], want: float
+) -> None:
+    got = gdw.max_dist_sqrd(center_coord, box_size)
+    assert got == pytest.approx(want)
 
 
 class TestFlatLocation(unittest.TestCase):
