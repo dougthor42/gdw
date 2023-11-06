@@ -160,6 +160,24 @@ def test_gdw_known_values(
     assert got == want
 
 
+def test_max_gdw() -> None:
+    die_size = (5, 4)
+    diameter = 150
+    excl = 3.5
+    flat_excl = 5
+    north_limit = None
+
+    want_gross_die = 730
+    want_grid_center = (30.5, 38.0)
+
+    got_probe_list, got_grid_center = gdw.maxGDW(
+        die_size, diameter, excl, flat_excl, north_limit
+    )
+    got_gross_die = sum(1 for x in got_probe_list if x.state == gdw.DieState.PROBE)
+    assert got_gross_die == want_gross_die
+    assert got_grid_center == want_grid_center
+
+
 @pytest.mark.skip(reason="tested function not completed yet")
 def test_die_to_radius_known_values() -> None:
     pass
@@ -215,3 +233,26 @@ def test_calc_die_state_known_values(
 ) -> None:
     got = gdw.calc_die_state(wafer, diex, diey, northlim)
     assert got[-1] == want
+
+
+@pytest.mark.parametrize(
+    "state, want",
+    [
+        (gdw.DieState.EXCLUSION, 3),
+        (gdw.DieState.FLAT, 2),
+        (gdw.DieState.SCRIBE, 1),
+    ],
+)
+def test_count_by_state(state: gdw.DieState, want: int) -> None:
+    data = [
+        gdw.Die(1, 1, 1, 1, gdw.DieState.PROBE),
+        gdw.Die(1, 1, 1, 1, gdw.DieState.EXCLUSION),
+        gdw.Die(1, 1, 1, 1, gdw.DieState.EXCLUSION),
+        gdw.Die(1, 1, 1, 1, gdw.DieState.EXCLUSION),
+        gdw.Die(1, 1, 1, 1, gdw.DieState.FLAT),
+        gdw.Die(1, 1, 1, 1, gdw.DieState.FLAT),
+        gdw.Die(1, 1, 1, 1, gdw.DieState.SCRIBE),
+        gdw.Die(1, 1, 1, 1, gdw.DieState.WAFER),
+    ]
+    got = gdw.count_by_state(data, state)
+    assert got == want

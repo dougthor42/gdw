@@ -472,30 +472,21 @@ def maxGDW(
     """
     # list of available die shifts in XY pairs
     ds = [("odd", "odd"), ("odd", "even"), ("even", "odd"), ("even", "even")]
-    # ds = [("even", "odd")]
-    j = (0, ("", ""), 0, 0, 0)
+    max_probe_count = (0, ("", ""))
     probeList = []
     for shift in ds:
-        probeCount = 0
-        edgeCount = 0
-        flatCount = 0
-        flatExclCount = 0
         dieList, grid_center = gdw(die_size, dia, shift, excl, fssExcl, north_limit)
-        for die in dieList:
-            if die[-1] == DieState.PROBE:
-                probeCount += 1
-            elif die[-1] == DieState.EXCLUSION:
-                edgeCount += 1
-            elif die[-1] == DieState.FLAT:
-                flatCount += 1
-            elif die[-1] == DieState.FLAT_EXCLUSION:
-                flatExclCount += 1
 
+        probeCount = count_by_state(dieList, DieState.PROBE)
         print(shift, probeCount)
-        if probeCount > j[0]:
-            j = (probeCount, shift, edgeCount, flatCount, flatExclCount)
+        if probeCount > max_probe_count[0]:
+            max_probe_count = (probeCount, shift)
             probeList = dieList
             gridCenter = grid_center
+
+    lost_edge = count_by_state(dieList, DieState.EXCLUSION)
+    lost_flat = count_by_state(dieList, DieState.FLAT)
+    lost_flat_excl = count_by_state(dieList, DieState.FLAT_EXCLUSION)
 
     SUMMARY_STRING = """
     ----------------------------------
@@ -509,16 +500,22 @@ def maxGDW(
 
     print(
         SUMMARY_STRING.format(
-            max_gdw=j[0],
-            max_gdw_type_x=j[1][0],
-            max_gdw_type_y=j[1][1],
-            lost_edge=j[2],
-            lost_flat=j[3],
-            lost_fss=j[4],
+            max_gdw=max_probe_count[0],
+            max_gdw_type_x=max_probe_count[1][0],
+            max_gdw_type_y=max_probe_count[1][1],
+            lost_edge=lost_edge,
+            lost_flat=lost_flat,
+            lost_fss=lost_flat_excl,
         )
     )
 
     return (probeList, gridCenter)
+
+
+def count_by_state(die_list: List[Die], state: DieState) -> int:
+    """Return the count of die that have the given ``state``."""
+    count = sum(1 for x in die_list if x.state == state)
+    return count
 
 
 def gen_mask_file(

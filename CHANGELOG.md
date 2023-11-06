@@ -18,6 +18,7 @@
 + Tests were migrated from `unittest` to `pytest`.
 + Migrated the die "state" strings to an enum.
 + Removed some dead/unused code.
++ Refactored a `count_by_state` function and cleaned things up a bit.
 
 
 ## 0.1.3 / 2017-03-15
